@@ -53,5 +53,23 @@ class BukuModel {
         $stmt = sqlsrv_query($this->db, $sql, $params);
         return $stmt !== false;
     }
+
+    public function getRiwayatPinjamanBuku($idBuku) {
+    $sql = "SELECT dp.IdPinjam, a.Nama AS NamaAnggota, dp.TanggalPinjam, dp.Jumlah, 
+                   CASE WHEN dk.IdKembali IS NULL THEN 'Dipinjam' ELSE 'Dikembalikan' END AS Status
+            FROM DaftarPinjaman dp
+            JOIN Anggota a ON dp.IdAnggota = a.IdAnggota
+            LEFT JOIN DaftarPengembalian dk ON dp.IdPinjam = dk.IdPinjam
+            WHERE dp.IdBuku = ?
+            ORDER BY dp.TanggalPinjam DESC";
+    
+    $params = array($idBuku);
+    $stmt = sqlsrv_query($this->db, $sql, $params);
+    $result = array();
+    while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+        $result[] = $row;
+    }
+    return $result;
+}
 }
 ?>
